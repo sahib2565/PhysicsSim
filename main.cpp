@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
 #include <glm/glm.hpp>
 #include "particle.h"  // Include the Particle class header
 
@@ -9,31 +10,39 @@ const int WINDOW_HEIGHT = 600;
 const float radius = 0.05f; // Radius of cirlce
 
 // Global Particle instance
-Particle particle(1.0f, glm::vec2(0.0f, 0.5f), glm::vec2(-0.05f, -0.20f));
+Particle particle(1.0f, glm::vec2(0.0f, 0.5f), glm::vec2(0.0f, -0.20f));
+Particle particle2(2.0f, glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f,0.20f));
+
+std::vector<std::reference_wrapper<Particle>> particles = {particle, particle2};
+
 
 // OpenGL Render function
-void render() {
-	glClear(GL_COLOR_BUFFER_BIT);
+void render(std::vector<std::reference_wrapper<Particle>>& par) {
+    glClear(GL_COLOR_BUFFER_BIT);
+    for(Particle& p : par){
+        // glClear(GL_COLOR_BUFFER_BIT);
 
-    // Set the circle's color
-    glColor3f(1.0f, 1.0f, 1.0f); // White
+        // Set the circle's color
+        glColor3f(1.0f, 1.0f, 1.0f); // White
 
-    // Begin drawing the circle
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(particle.getPosition().x, particle.getPosition().y); // Center of circle
-    for (int i = 0; i <= 100; i++) {
-        float angle = i * 2.0f * M_PI / 100;
-        float x = particle.getPosition().x + radius * cos(angle);
-        float y = particle.getPosition().y + radius * sin(angle);
-        glVertex2f(x, y);
+        // Begin drawing the circle
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(p.getPosition().x, p.getPosition().y); // Center of circle
+        for (int i = 0; i <= 100; i++) {
+            float angle = i * 2.0f * M_PI / 100;
+            float x = p.getPosition().x + radius * cos(angle);
+            float y = p.getPosition().y + radius * sin(angle);
+            glVertex2f(x, y);
+        }
+        glEnd();
+
+        //glfwSwapBuffers(glfwGetCurrentContext());
     }
-    glEnd();
-
     glfwSwapBuffers(glfwGetCurrentContext());
 }
 
 // Update and render simulation
-void updateAndRender() {
+void updateAndRender(std::vector<std::reference_wrapper<Particle>> par) {
     float deltaTime = 0.016f;  // Assuming 60fps, so 1/60 = 0.016s per frame
 
 	// Giving constraint:
@@ -49,20 +58,23 @@ void updateAndRender() {
 		particle.constrain_to_bound();
 	}
 	*/
-	if(particle.getPosition().y - radius <= -1.0 || particle.getPosition().y + radius >= 1.0){
-		particle.hitBottomTop();
-		particle.update(deltaTime);
-	}
-	else if(particle.getPosition().x - radius <= -1.0 || particle.getPosition().x + radius >= 1.0){
-		particle.hitLeftRight();
-		particle.update(deltaTime);
-	}
-	else{
-		particle.update(deltaTime);
-	}
+    for (Particle& pa : par){
+        if(pa.getPosition().y - radius <= -1.0 || pa.getPosition().y + radius >= 1.0){
+            pa.hitBottomTop();
+            pa.update(deltaTime);
+        }
+        else if(pa.getPosition().x - radius <= -1.0 || pa.getPosition().x + radius >= 1.0){
+            pa.hitLeftRight();
+            pa.update(deltaTime);
+        }
+        else{
+            pa.update(deltaTime);
+        }
+    }
 
     // Render the updated particle
-    render();
+    render(par);
+    
 }
 
 int main() {
@@ -89,7 +101,8 @@ int main() {
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Update and render simulation
-        updateAndRender();
+        updateAndRender(particles);
+        // updateAndRender(particle2);
 
         // Poll for events (e.g., window close)
         glfwPollEvents();
