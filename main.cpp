@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
+#include <math.h>
 #include <glm/glm.hpp>
 #include "particle.h"  // Include the Particle class header
 
@@ -10,11 +11,19 @@ const int WINDOW_HEIGHT = 600;
 const float radius = 0.05f; // Radius of cirlce
 
 // Global Particle instance
-Particle particle(1.0f, glm::vec2(0.0f, 0.5f), glm::vec2(0.0f, -0.20f));
-Particle particle2(2.0f, glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f,0.20f));
+// Position of x and y can not reach threshold of 0.94
+
+Particle particle(1.0f, glm::vec2(0.0f, 0.94f), glm::vec2(-0.0f, -0.10f));
+Particle particle2(2.0f, glm::vec2(0.0f, -0.94f), glm::vec2(-0.0f,0.10f));
 
 std::vector<std::reference_wrapper<Particle>> particles = {particle, particle2};
 
+// Get distance
+
+float distance(float x1, float x2, float y1, float y2){
+    float dis = ((x2-x1) * (x2-x1)) + ((y2-y1) * (y2-y1));
+    return sqrt(dis);
+}
 
 // OpenGL Render function
 void render(std::vector<std::reference_wrapper<Particle>>& par) {
@@ -59,6 +68,7 @@ void updateAndRender(std::vector<std::reference_wrapper<Particle>> par) {
 	}
 	*/
     for (Particle& pa : par){
+        // Collsion detection
         if(pa.getPosition().y - radius <= -1.0 || pa.getPosition().y + radius >= 1.0){
             pa.hitBottomTop();
             pa.update(deltaTime);
@@ -71,6 +81,12 @@ void updateAndRender(std::vector<std::reference_wrapper<Particle>> par) {
             pa.update(deltaTime);
         }
     }
+    // Collision detection for 2 particles
+    if (distance(par[0].get().getPosition().x,par[1].get().getPosition().x,par[0].get().getPosition().y,par[1].get().getPosition().y) <= 0.1){
+    // Collision response
+        par[0].get().CollsionResponse(par[1].get().getMass(), par[1].get().getVelocity(), par[1].get().getPosition(), deltaTime);
+        par[1].get().CollsionResponse(par[0].get().getMass(), par[0].get().getVelocity(), par[0].get().getPosition(), deltaTime);
+    } 
 
     // Render the updated particle
     render(par);

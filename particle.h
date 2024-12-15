@@ -29,14 +29,14 @@ class Particle {
     void update(float deltaTime){
         if (mass > 0.0f){
             // compute accelaration
-            accelaration = force / mass;
+            // accelaration = force / mass;
+            accelaration = glm::vec2(0.0f);
         } else {
             accelaration = glm::vec2(0.0f);
         }
     
 
         // update velocity v = v0 + a * dt
-
         velocity += accelaration * deltaTime;
 
         // update position: p = = p0 + v * dt
@@ -62,6 +62,10 @@ class Particle {
         return accelaration;
     }
 
+    float getMass() const {
+        return mass;
+    }
+
     // Boundries function
     void constrain_to_bound(){
         position = glm::vec2(position.x,-0.95f);
@@ -73,6 +77,27 @@ class Particle {
     }
     void hitLeftRight() {
         velocity = glm::vec2(-velocity.x, velocity.y);
+    }
+
+    // Collision response
+
+    void CollsionResponse(float m2, glm::vec2 v2, glm::vec2 p2, float deltaTime){
+        glm::vec2 deltaV = velocity - v2;
+        glm::vec2 deltaX = position - p2;
+
+        // Dot product and squared norm
+
+        float  dotProduct = glm::dot(deltaV,deltaX);
+        float normSquared = glm::dot(deltaX, deltaX);
+
+        // scalar multiplier
+
+        float scalar = (2.0f * m2 / (m2 + mass)) * (dotProduct / normSquared);
+
+        // resulting vector
+        velocity = glm::vec2(velocity - scalar * deltaX);
+
+        position += velocity * deltaTime;
     }
 };
 
