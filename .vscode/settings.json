@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "/Users/sahibsingh/Documents/PhysicsSim/dependencies/include/glm"
+    "cmake.sourceDirectory": "/Users/sahibsingh/Documents/PhysicsSim/dependencies/include/glm",
+    "files.associations": {
+        "__node_handle": "cpp"
+    }
 }

@@ -97,6 +97,13 @@ class Particle {
         // resulting vector
         velocity = glm::vec2(velocity - scalar * deltaX);
 
+        float overlap = 0.1f - glm::length(deltaX); // Assuming 0.2f is the particle diameter
+        if (overlap > 0.0f) {
+            glm::vec2 correction = (overlap / 2.0f) * glm::normalize(deltaX);
+            position += correction;  // Move this particle
+            // p2 -= correction;        // Move the other particle (if accessible)
+        }
+
         position += velocity * deltaTime;
     }
 };
