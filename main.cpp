@@ -65,6 +65,7 @@ void updateAndRender(std::vector<Particle> par, BVH bvh) {
 
     // Handle boundary collisions
     for (auto& particle : particles) {
+        // glm::vec2 pos = particle.getPosition();
         glm::vec2 pos = particle.getPosition();
         glm::vec2 vel = particle.getVelocity();
 
@@ -85,6 +86,7 @@ void updateAndRender(std::vector<Particle> par, BVH bvh) {
             pos.y = maxY;
             particle.hitBottomTop();
         }
+        particle.position = pos;
     }
 
         // Detect and resolve collisions between particles
