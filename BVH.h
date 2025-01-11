@@ -83,7 +83,45 @@ public:
     void updateParticles(std::vector<Particle>& particles, float deltaTime) {
         for (auto& particle : particles) {
             particle.update(deltaTime);
+
+            // new code
+            bool hitX = false, hitY = false;
+            glm::vec2 pos = particle.getPosition();
+            glm::vec2 velocity = particle.getVelocity();
+            const float minX = -0.94f, maxX = 0.94f;
+            const float minY = -0.94f, maxY = 0.94f;
+
+        // Check collisions with vertical boundaries
+            if (pos.x < minX) {
+                pos.x = minX;
+                velocity.x = -velocity.x * 0.9f; // Reflect and dampen
+                hitX = true;
+            } else if (pos.x > maxX) {
+                pos.x = maxX;
+                velocity.x = -velocity.x * 0.9f;
+                hitX = true;
+            }
+
+            // Check collisions with horizontal boundaries
+            if (pos.y < minY) {
+                pos.y = minY;
+                velocity.y = -velocity.y * 0.9f;
+                hitY = true;
+            } else if (pos.y > maxY) {
+                pos.y = maxY;
+                velocity.y = -velocity.y * 0.9f;
+                hitY = true;
+            }
+
+            // Handle corner cases: dampen velocity slightly if both axes collide
+            if (hitX && hitY) {
+                velocity *= 0.9f; // Extra damping to resolve sticking
+            }
+
+            particle.position = pos;
+            particle.velocity = velocity;
         }
+        // end of new code
         build(particles); // Rebuild BVH after updating particles
     }
 

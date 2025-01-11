@@ -19,9 +19,13 @@ const float radius = 0.05f; // Radius of cirlce
 // Defining Particles
 std::vector<Particle> particles = {
         Particle(1.0f, glm::vec2(0.0f, 0.0f), glm::vec2(0.1f, 0.1f)),
-        Particle(1.0f, glm::vec2(0.83f, -0.65f), glm::vec2(-0.1f, -0.1f)),
-        Particle(1.0f, glm::vec2(-0.55f, 0.55f), glm::vec2(0.2f, 0.2f)),
-        Particle(1.0f, glm::vec2(0.3f, 0.3f), glm::vec2(-0.2f, -0.2f))
+        Particle(1.0f, glm::vec2(0.83f, -0.63f), glm::vec2(-0.1f, -0.1f)),
+        Particle(1.0f, glm::vec2(-0.51f, 0.55f), glm::vec2(0.2f, 0.2f)),
+        Particle(1.0f, glm::vec2(0.15f, 0.3f), glm::vec2(-0.2f, -0.2f)),
+        Particle(1.0f, glm::vec2(0.13f, 0.12f), glm::vec2(0.1f, 0.1f)),
+        Particle(1.0f, glm::vec2(0.45f, -0.60f), glm::vec2(-0.1f, -0.1f)),
+        Particle(1.0f, glm::vec2(-0.50f, 0.55f), glm::vec2(0.2f, 0.2f)),
+        Particle(1.0f, glm::vec2(0.13f, 0.2f), glm::vec2(-0.2f, -0.2f))
 };
 // Get distance
 
@@ -58,11 +62,12 @@ void render(std::vector<Particle> par) {
 // Update and render simulation
 void updateAndRender(std::vector<Particle> par, BVH bvh) {
     float deltaTime = 0.016f;  // Assuming 60fps, so 1/60 = 0.016s per frame
-
+    /*
 	const float minX = -0.94f, maxX = 0.94f;
     const float minY = -0.94f, maxY = 0.94f;
+    */
     bvh.updateParticles(particles, deltaTime);
-
+    /*
     // Handle boundary collisions
     for (auto& particle : particles) {
         // glm::vec2 pos = particle.getPosition();
@@ -70,24 +75,33 @@ void updateAndRender(std::vector<Particle> par, BVH bvh) {
         glm::vec2 vel = particle.getVelocity();
 
         // Check and resolve collisions with vertical boundaries
-        if (pos.x < minX) {
-            pos.x = minX;
-            particle.hitLeftRight(); // Reflect velocity
-        } else if (pos.x > maxX) {
-            pos.x = maxX;
-            particle.hitLeftRight();
-        }
+        if (pos.x < minX && pos.y < minY) {
+            pos = glm::vec2(minX, minY);
+            particle.velocity = -particle.velocity; // Reflect in both directions
+        } else if (pos.x > maxX && pos.y > maxY) {
+            pos = glm::vec2(maxX, maxY);
+            particle.velocity = -particle.velocity;
+        } else {
+            if (pos.x < minX) {
+                pos.x = minX;
+                particle.hitLeftRight(); // Reflect velocity
+            } else if (pos.x > maxX) {
+                pos.x = maxX;
+                particle.hitLeftRight();
+            }
 
-            // Check and resolve collisions with horizontal boundaries
-        if (pos.y < minY) {
-            pos.y = minY;
-            particle.hitBottomTop();
-        } else if (pos.y > maxY) {
-            pos.y = maxY;
-            particle.hitBottomTop();
+                // Check and resolve collisions with horizontal boundaries
+            if (pos.y < minY) {
+                pos.y = minY;
+                particle.hitBottomTop();
+            } else if (pos.y > maxY) {
+                pos.y = maxY;
+                particle.hitBottomTop();
+            }
+            particle.position = pos;
         }
-        particle.position = pos;
     }
+    */
 
         // Detect and resolve collisions between particles
     for (size_t i = 0; i < particles.size(); ++i) {
